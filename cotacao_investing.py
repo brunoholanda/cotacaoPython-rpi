@@ -4,6 +4,7 @@ import tkinter as tk
 from tkinter import Toplevel, Label, Frame, Canvas, Text, Scrollbar
 import xml.etree.ElementTree as ET
 from datetime import datetime
+import pytz
 from html.parser import HTMLParser
 
 
@@ -77,6 +78,33 @@ def get_news_from_feed():
         return []
     
     
+def get_temperature():
+    try:
+        api_key = "f110c29a80dc5fc42e64deebcbb3e4c4"  # Substitua pela sua chave de API
+        url = f"http://api.openweathermap.org/data/2.5/weather?q=Joao%20Pessoa,BR&units=metric&appid={api_key}"
+        response = requests.get(url)
+
+        if response.status_code == 200:
+            data = response.json()
+            temp = data["main"]["temp"]  # Temperatura atual
+            return temp
+        else:
+            print(f"Erro ao buscar dados da API: {response.status_code}")
+            return None
+    except Exception as e:
+        print(f"Erro ao buscar temperatura: {e}")
+        return None
+
+# Função para atualizar o valor da temperatura
+def update_temperature():
+    temp = get_temperature()
+    if temp is not None:
+        temperature_value_label.config(text=f"{temp:.1f}°C")
+    else:
+        temperature_value_label.config(text="Erro")
+
+    # Atualizar a temperatura a cada 10 minutos
+    root.after(600000, update_temperature)
 def show_full_news(event):
     global news_headlines, current_news_index
 
@@ -222,7 +250,7 @@ def update_bacen_data():
 
 # Função para atualizar o horário da última atualização
 def update_last_updated_time():
-    current_time = datetime.now().strftime("%H:%M:%S")
+    current_time = datetime.now(timezone).strftime("%H:%M:%S")
     last_updated_label.config(text=f"Última atualização: {current_time}")
 
 # Configurando a interface gráfica
@@ -237,10 +265,11 @@ current_news_index = 0  # Índice da notícia atual
 # Cabeçalho
 header_frame = Frame(root, bg="#1e88e5", height=40)
 header_frame.pack(fill="x")
+timezone = pytz.timezone("America/Sao_Paulo")
 
 date_label = Label(
     header_frame,
-    text=datetime.now().strftime("%d/%m/%Y"),  # Exibe a data atual
+    text=datetime.now(timezone).strftime("%d/%m/%Y"),  # Exibe a data no fuso correto
     font=("Arial", 10, "bold"),
     bg="#1e88e5",
     fg="white"
@@ -279,7 +308,7 @@ footer_label.pack(pady=5)
 
 # Função para atualizar dinamicamente a hora no canto superior direito
 def update_time():
-    current_time = datetime.now().strftime("%H:%M:%S")
+    current_time = datetime.now(timezone).strftime("%H:%M:%S")
     time_label.config(text=current_time)
     root.after(1000, update_time)  # Atualiza a cada 1 segundo
 
@@ -288,13 +317,22 @@ update_time()
 header_label.pack(pady=5)
 
 # Cards
-investing_card = create_card(root, 30, 50, 440, 80, bg="white", shadow_color="#d3d3d3")
+# Card para o Dólar
+investing_card = create_card(root, 30, 50, 220, 80, bg="white", shadow_color="#d3d3d3")
 investing_title_label = Label(investing_card, text="Dólar (Real Time Investing)", font=("Arial", 12, "bold"), bg="white", fg="#333")
 investing_title_label.place(x=10, y=5)
 investing_value_label = Label(investing_card, text="Carregando...", font=("Arial", 16, "bold"), bg="white", fg="#333")
 investing_value_label.place(x=10, y=30)
 investing_variation_label = Label(investing_card, text="", font=("Arial", 10), bg="white", fg="#333")
 investing_variation_label.place(x=10, y=55)
+
+# Card para a Temperatura de João Pessoa
+temperature_card = create_card(root, 260, 50, 210, 80, bg="white", shadow_color="#d3d3d3")  # Posição x ajustada
+temperature_title_label = Label(temperature_card, text="João Pessoa", font=("Arial", 12, "bold"), bg="white", fg="#333")
+temperature_title_label.place(x=10, y=5)
+temperature_value_label = Label(temperature_card, text="Carregando...", font=("Arial", 16, "bold"), bg="white", fg="#333")
+temperature_value_label.place(x=10, y=30)
+
 
 bacen_card = create_card(root, 30, 140, 440, 60, bg="white", shadow_color="#d3d3d3")
 bacen_title_label = Label(bacen_card, text="Dólar (Banco Central)", font=("Arial", 12, "bold"), bg="white", fg="#333")
@@ -318,6 +356,7 @@ last_updated_label.pack(side="bottom", pady=10)
 update_news_feed()
 update_investing_data()  # Atualiza o Investing a cada 60 segundos
 update_bacen_data()  # Atualiza o Banco Central a cada 1 hora
+update_temperature()
 
 # Iniciar o loop principal da interface gráfica
 root.mainloop()
