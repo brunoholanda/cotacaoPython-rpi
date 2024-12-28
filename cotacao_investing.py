@@ -253,11 +253,17 @@ def update_last_updated_time():
     current_time = datetime.now(timezone).strftime("%H:%M:%S")
     last_updated_label.config(text=f"Última atualização: {current_time}")
 
+def update_silicon_valley_time():
+    current_time_silicon = datetime.now(silicon_valley_timezone).strftime("%H:%M:%S")
+    silicon_time_label.config(text=f"{current_time_silicon}")
+    root.after(1000, update_silicon_valley_time)  # Atualiza a cada 1 segundo
+
 # Configurando a interface gráfica
 root = tk.Tk()
 root.title("Cotação do Dólar")
 root.attributes("-fullscreen", True)  # Iniciar em tela cheia
 root.configure(bg="#f0f0f0")
+root.config(cursor="none")
 
 news_headlines = []  # Lista de notícias
 current_news_index = 0  # Índice da notícia atual
@@ -266,6 +272,7 @@ current_news_index = 0  # Índice da notícia atual
 header_frame = Frame(root, bg="#1e88e5", height=40)
 header_frame.pack(fill="x")
 timezone = pytz.timezone("America/Sao_Paulo")
+silicon_valley_timezone = pytz.timezone("America/Los_Angeles")
 
 date_label = Label(
     header_frame,
@@ -334,11 +341,19 @@ temperature_value_label = Label(temperature_card, text="Carregando...", font=("A
 temperature_value_label.place(x=10, y=30)
 
 
-bacen_card = create_card(root, 30, 140, 440, 60, bg="white", shadow_color="#d3d3d3")
+bacen_card = create_card(root, 30, 140, 220, 60, bg="white", shadow_color="#d3d3d3")
 bacen_title_label = Label(bacen_card, text="Dólar (Banco Central)", font=("Arial", 12, "bold"), bg="white", fg="#333")
 bacen_title_label.place(x=0, y=5)
 bacen_value_label = Label(bacen_card, text="Carregando...", font=("Arial", 16, "bold"), bg="white", fg="#333")
 bacen_value_label.place(x=10, y=30)
+
+silicon_time_card = create_card(root, 260, 140, 210, 60, bg="white", shadow_color="#d3d3d3")
+silicon_title_label = Label(silicon_time_card, text="California Time", font=("Arial", 12, "bold"), bg="white", fg="#333")
+silicon_title_label.place(x=10, y=5)
+
+silicon_time_label = Label(silicon_time_card, text="Carregando...", font=("Arial", 16, "bold"), bg="white", fg="#333")
+silicon_time_label.place(x=10, y=30)
+
 
 news_card = create_card(root, 30, 210, 440, 50)
 news_title_label = Label(news_card, text="News", font=("Arial", 10, "bold"), bg="white")
@@ -357,6 +372,7 @@ update_news_feed()
 update_investing_data()  # Atualiza o Investing a cada 60 segundos
 update_bacen_data()  # Atualiza o Banco Central a cada 1 hora
 update_temperature()
+update_silicon_valley_time()
 
 # Iniciar o loop principal da interface gráfica
 root.mainloop()
