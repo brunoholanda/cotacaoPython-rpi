@@ -32,7 +32,7 @@ def create_card(parent, x, y, width, height, bg="#FFFFFF", shadow_color="#d3d3d3
     return canvas
 
     # Função para buscar as notícias
-NEWS_API_KEY = "14715ced631043f590e23014e80f7fe5"  # Substitua pela sua chave da API NewsAPI
+NEWS_API_KEY = "your_news_key"  # Substitua pela sua chave da API NewsAPI
 
 class HTMLCleaner(HTMLParser):
     def __init__(self):
@@ -80,7 +80,7 @@ def get_news_from_feed():
     
 def get_temperature():
     try:
-        api_key = "f110c29a80dc5fc42e64deebcbb3e4c4"  # Substitua pela sua chave de API
+        api_key = "your_weather_key"  # Substitua pela sua chave de API
         url = f"http://api.openweathermap.org/data/2.5/weather?q=Joao%20Pessoa,BR&units=metric&appid={api_key}"
         response = requests.get(url)
 
